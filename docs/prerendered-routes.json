@@ -1,0 +1,10 @@
+{
+  "routes": [
+    "/",
+    "/fifth-chart",
+    "/first-chart",
+    "/fourth-chart",
+    "/second-chart",
+    "/third-chart"
+  ]
+}
