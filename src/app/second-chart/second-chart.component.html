@@ -1,0 +1,46 @@
+<div class="body w-75">
+
+    <mat-toolbar color="primary" class="chart-header">
+        <span>{{ chart.main_title }}</span>
+        <div class="icon">
+            <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="home" routerLink="">
+            </mat-icon>
+            <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="looks_one"
+                routerLink="./../first-chart">
+            </mat-icon>
+            <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="looks_two" routerLink="second-chart">
+            </mat-icon>
+            <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="looks_3"
+                routerLink="./../third-chart">
+            </mat-icon>
+            <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="looks_4"
+                routerLink="./../fourth-chart">
+            </mat-icon>
+            <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="looks_5"
+                routerLink="./../fifth-chart">
+            </mat-icon>
+        </div>
+    </mat-toolbar>
+
+    <div class="chart-container">
+        <mat-card>
+            <mat-card-header>
+                <mat-card-title>{{ chart.title }}</mat-card-title>
+                <mat-card-subtitle>
+                    <div class="chart-type">
+                        <div class="chart-type-title">Chart Type:</div> {{ chart.type }}
+                    </div>
+                </mat-card-subtitle>
+                <mat-card-subtitle>{{ chart.description }}</mat-card-subtitle>
+            </mat-card-header>
+
+            <mat-card-content>
+                <div id="scatterplot" class="scatterplot"></div>
+            </mat-card-content>
+            <div id="tooltip" class="tooltip" style="opacity: 0;"></div>
+
+        </mat-card>
+    </div>
+
+
+</div>

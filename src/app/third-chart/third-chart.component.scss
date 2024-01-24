@@ -1,0 +1,66 @@
+.body {
+    margin: auto;
+    padding-top: 60px;
+}
+
+
+/* Style for the Axis Labels */
+::ng-deep .axis-label {
+    font-size: 14px;
+    font-weight: bold;
+    text-anchor: middle;
+    fill: #333;
+}
+
+/* Style for the Bars */
+::ng-deep .bar {
+    fill: steelblue;
+    transition: fill 0.3s ease;
+}
+
+::ng-deep .bar:hover {
+    fill: darkblue;
+}
+
+/* Style for the Line Chart */
+::ng-deep .line {
+    fill: none;
+    stroke: orange;
+    stroke-width: 3px;
+}
+
+/* Style for the Points on the Line Chart */
+::ng-deep .dot {
+    fill: orangered;
+    stroke: #fff;
+}
+
+::ng-deep .dot:hover {
+    fill: darkred;
+}
+
+/* Style for the Tooltip */
+::ng-deep .tooltip {
+    position: absolute;
+    text-align: center;
+    width: auto;
+    height: auto;
+    padding: 8px;
+    font-size: 12px;
+    background: lightsteelblue;
+    border: 0px;
+    border-radius: 4px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.icon {
+    width: 100%;
+    text-align: right;
+    margin-top: 10px;
+}
+
+.mat-icon {
+    cursor: pointer;
+}

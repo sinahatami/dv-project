@@ -1,4 +1,27 @@
 /* You can add global styles to this file, and also import other style files */
+@import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+    padding: 0 !important;
+    background-color: #001735 !important;
+}
+
+.chart-type-title {
+    display: inline;
+    font-size: 17px;
+    color: black;
+}
+
+.chart-type {}
+
+mat-card-subtitle {
+    margin-top: 10px !important;
+}

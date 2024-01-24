@@ -1,0 +1,78 @@
+mat-toolbar {
+    margin-bottom: 20px;
+}
+
+.background-image {
+    background-image: url('../../assets/background-image.png');
+    /* Replace with your image path */
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+}
+
+.content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.6);
+    /* Semi-transparent white background */
+}
+
+mat-card {
+    width: 600px;
+    /* Adjust based on your preference */
+    text-align: center;
+    margin: 20px;
+}
+
+mat-card-title {
+    font-size: 24px;
+}
+
+mat-card-content p {
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+::ng-deep body {
+    max-width: none !important;
+    width: 100%;
+}
+
+.title-project {
+    margin: 10px auto !important;
+}
+
+.creative-button {
+    background: linear-gradient(45deg, #ff5858, #f09819, #ff5858);
+    background-size: 300% 300%;
+    color: white;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px 0 rgba(255, 88, 88, 0.75);
+    transition: all 0.4s ease-in-out;
+    font-size: 18px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.creative-button:hover {
+    background-position: 100% 0;
+    box-shadow: 0 6px 20px 0 rgba(255, 88, 88, 0.75);
+    transform: translateY(-2px);
+}
+
+.creative-button:active {
+    transform: translateY(2px);
+}
+
+.mat-mdc-card-actions {
+    margin: 10px auto;
+}
+
+::ng-deep .mdc-button__label {
+    color: white !important;
+}
