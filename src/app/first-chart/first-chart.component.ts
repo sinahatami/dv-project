@@ -36,7 +36,7 @@ export class FirstChartComponent implements OnInit {
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
-    d3.csv("assets/dataset/top_5_countries_life_expectancy_data1.csv").then((data: any) => {
+    d3.csv("assets/top_5_countries_life_expectancy_data1.csv").then((data: any) => {
       // X axis: scale and draw
       const x = d3.scaleBand()
         .range([0, width])

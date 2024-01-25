@@ -50,7 +50,7 @@ export class FifthChartComponent implements OnInit {
       .y1(function (d: any) { return y(d.Total_expenditure); });
 
     // Read the CSV file
-    d3.csv("assets/dataset/Top_5_Countries_Health_Expenditure.csv").then((data: any) => {
+    d3.csv("assets/Top_5_Countries_Health_Expenditure.csv").then((data: any) => {
       // Format the data
       data.forEach((d: any) => {
         d.Year = parseTime(d.Year);
