@@ -36,7 +36,7 @@ export class FourthChartComponent implements OnInit {
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
     // Read the data
-    d3.csv("../assets/dataset/scatter_data_with_countries4.csv").then((data: any) => {
+    d3.csv("assets/dataset/scatter_data_with_countries4.csv").then((data: any) => {
       // Assuming 'Intercept' and 'Coefficient' are columns in your CSV
       const intercept = parseFloat(data[0].Intercept);
       const coefficient = parseFloat(data[0].Coefficient);

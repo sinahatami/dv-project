@@ -87,7 +87,7 @@ export class ThirdChartComponent implements OnInit {
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
     // Read the data
-    d3.csv("../assets/dataset/Top15_Heatmap_Data_Standardized3.csv").then((data: any) => {
+    d3.csv("assets/dataset/Top15_Heatmap_Data_Standardized3.csv").then((data: any) => {
       // Labels of row and columns
       const countries = data.map((d: any) => d.Country);
       const indicators = Object.keys(data[0]).slice(1); // exclude the first column which is Country

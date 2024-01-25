@@ -37,7 +37,7 @@ export class SecondChartComponent implements OnInit {
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
     // Read the data
-    d3.csv("../assets/dataset/Processed_Life_Expectancy_Data2.csv").then((data: any) => {
+    d3.csv("assets/dataset/Processed_Life_Expectancy_Data2.csv").then((data: any) => {
 
       // Convert strings to numbers
       data.forEach((d: any) => {
