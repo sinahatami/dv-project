@@ -18,7 +18,7 @@ export class ThirdChartComponent implements OnInit {
   public chart = {
     main_title: 'Third Chart',
     title: 'Standardized Health and Socio-Economic Indicators for the Top 15 Countries',
-    type: 'Heatmap',
+    type: 'Heatmap Chart',
     description: `The heatmap provides a comparative view of the top 15 countrie's based on their mean health and socio-economic indicators. Each row represents a country, and each column corresponds to an indicator such as "Life expectancy", "Adult Mortality", "Hepatitis B", "Measles", "BMI", "Polio", "Diphtheria", "HIV/AIDS", "GDP", and "Schooling". The color intensity in each cell reflects the countrys standardized score for that indicator, with the color scale provided at the bottom.`
   }
 
@@ -87,7 +87,7 @@ export class ThirdChartComponent implements OnInit {
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
     // Read the data
-    d3.csv("assets/Top15_Heatmap_Data_Standardized3.csv").then((data: any) => {
+    d3.csv("assets/export_file_3.csv").then((data: any) => {
       // Labels of row and columns
       const countries = data.map((d: any) => d.Country);
       const indicators = Object.keys(data[0]).slice(1); // exclude the first column which is Country
@@ -114,7 +114,6 @@ export class ThirdChartComponent implements OnInit {
       svg.append("g")
         .call(d3.axisLeft(y));
 
-      // Build color scale
       const myColor = d3.scaleSequential()
         .interpolator(d3.interpolateInferno)
         .domain([d3.min(data, (d: any) => d3.min(indicators, (indicator: any) => +d[indicator])),
@@ -122,32 +121,28 @@ export class ThirdChartComponent implements OnInit {
 
 
       const tooltip = d3.select("#tooltip");
-      // Three functions that change the tooltip when user hover / move / leave a cell
-      const mouseover = (event: any, d: any) => {
+      function mouseover(event: any, d: any) {
         tooltip.style("opacity", 1)
         tooltip.transition()
           .duration(200)
           .style("opacity", .9)
-
-        d3.select(this)
-          .style("stroke", "black")
-          .style("opacity", 1);
       }
 
-      const mousemove = function (d: any, event: any) {
-        tooltip.style("opacity", 1);
-        tooltip.html("The exact value of<br>this cell is: " + event[d.currentTarget.attributes.valuee.textContent])
-          .style("left", (d.pageX) - 230 + "px")
-          .style("top", (d.pageY - 100) + "px");
+      function mousemove(event: any, d: any) {
+        let indicatorValue: string = d[event.currentTarget.attributes.valuee.textContent]
+        let indicator: string = event.currentTarget.attributes.valuee.textContent
+        tooltip.html(`
+        Country: ${d['Country']} <br>
+        ${indicator}: <b>${indicatorValue}</b>
+        `)
+          .style("left", (event.pageX) - 230 + "px")
+          .style("top", (event.pageY - 100) + "px");
       };
 
-      const mouseleave = function (d: any, event: any) {
+      function mouseleave(event: any, d: any) {
         tooltip.transition()
           .duration(500)
           .style("opacity", 0);
-        d3.select(event)
-          .style("stroke", "none")
-          .style("opacity", 0.8);
       };
 
       // add the squares

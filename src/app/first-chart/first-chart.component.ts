@@ -36,7 +36,7 @@ export class FirstChartComponent implements OnInit {
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
-    d3.csv("assets/top_5_countries_life_expectancy_data1.csv").then((data: any) => {
+    d3.csv("assets/export_file_1.csv").then((data: any) => {
       // X axis: scale and draw
       const x = d3.scaleBand()
         .range([0, width])
@@ -74,11 +74,11 @@ export class FirstChartComponent implements OnInit {
       yAxisRight.append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", -margin.right + 120)
-        .attr("dy", "1.15em")
-        .attr("dx", "-120")
+        .attr("dy", "10px")
+        .attr("dx", "-80")
         .attr("text-anchor", "end")
         .attr("fill", "#000") // You can change the fill color
-        .text("Average Year-Over-Year Change");
+        .text("Average Year-Over-Year (Life Expectancy Changes)");
 
       const yAxisLeft = svg.append("g")
         .call(d3.axisLeft(y0));
@@ -139,8 +139,8 @@ export class FirstChartComponent implements OnInit {
         tooltip.transition()
           .duration(200)
           .style("opacity", .9);
-        tooltip.html("Country: " + data.Country + "<br/>Life Expectancy Range: " + +data['Life expectancy']
-          + "<br/>YoY Change: " + data.YoY_Change)
+        tooltip.html("Country: " + data.Country + "<br/>Life Expectancy Range: " + `<b>${+data['Life expectancy']}</b>`
+          + "<br/>YoY Change: " + `<b>${data.YoY_Change}</b>`)
           .style("left", (d.pageX - 300) + "px")
           .style("top", (d.pageY - 200) + "px");
       }

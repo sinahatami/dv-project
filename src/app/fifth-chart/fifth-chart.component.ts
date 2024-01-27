@@ -17,9 +17,9 @@ import { RouterModule } from '@angular/router';
 export class FifthChartComponent implements OnInit {
   public chart = {
     main_title: 'Fifth Chart',
-    title: 'Trends in Total Health Expenditure Across Top 5 Countries (2000-2014)',
-    type: 'Area Chart',
-    description: 'This visualization presents the total health expenditure trends from the year 2000 to 2014 for top 5 countries, including the United States of America, Micronesia, Sierra Leone, Sweden, and Norway. Each colored area represents the expenditure of one country, and the layers are stacked on top of each other to show the cumulative expenditure over the years.'
+    title: 'Trends in Total Health Expenditure Across Top 5 Countries On Total Expenditure (2000-2014)',
+    type: 'Area Chart Trend Line',
+    description: 'This visualization presents the total health expenditure trends from the year 2000 to 2014 for top 5 countries on total Expenditure, including the United States of America, Micronesia, Sierra Leone, Sweden, and Norway. Each colored area represents the expenditure of one country, and the layers are stacked on top of each other to show the cumulative expenditure over the years.'
   }
 
   fifthChart() {
@@ -50,7 +50,7 @@ export class FifthChartComponent implements OnInit {
       .y1(function (d: any) { return y(d.Total_expenditure); });
 
     // Read the CSV file
-    d3.csv("assets/Top_5_Countries_Health_Expenditure.csv").then((data: any) => {
+    d3.csv("assets/export_file_5.csv").then((data: any) => {
       // Format the data
       data.forEach((d: any) => {
         d.Year = parseTime(d.Year);
@@ -135,7 +135,7 @@ export class FifthChartComponent implements OnInit {
         tooltip.transition()
           .duration(200)
           .style("opacity", 0.9);
-        tooltip.html(`Country: ${d[0].Country}<br>Mean Total Expenditure: ${ave_Total_expenditure}`)
+        tooltip.html(`Country: ${d[0].Country}<br>Mean Total Expenditure: <b>${ave_Total_expenditure}</b>`)
           .style("left", (event.pageX - 240) + "px")
           .style("top", (event.pageY - 110) + "px");
       }

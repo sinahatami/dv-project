@@ -7,10 +7,10 @@ import { FifthChartComponent } from './fifth-chart/fifth-chart.component';
 import { HomeComponent } from './home/home.component';
 
 export const routes: Routes = [
-    { path: '', component: HomeComponent, title: 'Home page' },
-    { path: 'first-chart', component: FirstChartComponent, title: 'First Chart' },
-    { path: 'second-chart', component: SecondChartComponent, title: 'Second Chart' },
-    { path: 'third-chart', component: ThirdChartComponent, title: 'Third Chart' },
-    { path: 'fourth-chart', component: FourthChartComponent, title: 'Fourth Chart' },
-    { path: 'fifth-chart', component: FifthChartComponent, title: 'Fifth Chart' },
+    { path: '', component: HomeComponent, title: 'Life Expectancy Final DV Project' },
+    { path: 'first-chart', component: FirstChartComponent, title: 'Dual-Axis Composite Chart' },
+    { path: 'second-chart', component: SecondChartComponent, title: 'Bubble Chart' },
+    { path: 'third-chart', component: ThirdChartComponent, title: 'Heatmap Chart' },
+    { path: 'fourth-chart', component: FourthChartComponent, title: 'Scatter Linear Chart' },
+    { path: 'fifth-chart', component: FifthChartComponent, title: 'Area Chart' },
 ];

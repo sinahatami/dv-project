@@ -36,7 +36,7 @@ export class FourthChartComponent implements OnInit {
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
     // Read the data
-    d3.csv("assets/scatter_data_with_countries4.csv").then((data: any) => {
+    d3.csv("assets/export_file_4.csv").then((data: any) => {
       // Assuming 'Intercept' and 'Coefficient' are columns in your CSV
       const intercept = parseFloat(data[0].Intercept);
       const coefficient = parseFloat(data[0].Coefficient);
@@ -78,7 +78,7 @@ export class FourthChartComponent implements OnInit {
         tooltip.transition()
           .duration(200)
           .style("opacity", .9);
-        tooltip.html("Country: " + d.Country + "<br>GDP: " + d.GDP + "<br>Life Expectancy: " + d['Life expectancy'])
+        tooltip.html("Country: " + `${d.Country}` + "<br>GDP: " + `<b>${d.GDP}</b>` + "<br>Life Expectancy: " + `<b>${d['Life expectancy']}</b>`)
           .style("left", (event.pageX - 240) + "px")
           .style("top", (event.pageY - 110) + "px");
       };

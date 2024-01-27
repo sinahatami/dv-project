@@ -17,9 +17,9 @@ import { RouterModule } from '@angular/router';
 export class SecondChartComponent implements OnInit {
   public chart = {
     main_title: 'Second Chart',
-    title: 'Correlation Between Immunization Coverage and Adult Mortality in the Top 150 Countries by Life Expectancy',
+    title: 'Correlation Between Immunization Coverage and Adult Mortality Countries',
     type: 'Bubble Chart',
-    description: 'This visualization examines the relationship between immunization coverage and adult mortality among the top 150 countries ranked by life expectancy. It aims to explore whether higher immunization rates are associated with lower adult mortality, which is a key indicator of public health.'
+    description: 'This visualization examines the relationship between immunization coverage and adult mortality among all countries ranked by life expectancy. Immunization coverage is mean of "Polio", "Diphtheria" and "Hepatitis B". It aims to explore whether higher immunization rates are associated with lower adult mortality, which is a key indicator of public health.'
   }
 
   secondChart() {
@@ -37,7 +37,7 @@ export class SecondChartComponent implements OnInit {
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
     // Read the data
-    d3.csv("assets/Processed_Life_Expectancy_Data2.csv").then((data: any) => {
+    d3.csv("assets/export_file_2.csv").then((data: any) => {
 
       // Convert strings to numbers
       data.forEach((d: any) => {
@@ -61,7 +61,7 @@ export class SecondChartComponent implements OnInit {
 
       // Add Y axis
       const y = d3.scaleLinear()
-        .domain([0, d3.max(data, (d: any) => d['Adult Mortality'])])
+        .domain([0, 300])
         .range([height, 0]);
       svg.append("g")
         .call(d3.axisLeft(y))
@@ -74,8 +74,8 @@ export class SecondChartComponent implements OnInit {
 
       // Bubble size scale
       let bubbleScale = d3.scaleSqrt()
-        .domain([50, d3.max(data, (d: any) => d['Life expectancy'])])
-        .range([-10, 30]); // Adjust the range based on your actual visualization needs
+        .domain([0, 110])
+        .range([-80, 35]);
 
       // Add bubbles with tooltips
       const tooltip = d3.select("#scatterplot").append("div")
@@ -86,9 +86,9 @@ export class SecondChartComponent implements OnInit {
         .selectAll("dot")
         .data(data)
         .join("circle")
-        .attr("cx", (d: any) => x(d['Immunization Coverage']))
-        .attr("cy", (d: any) => y(d['Adult Mortality']))
-        .attr("r", (d: any) => bubbleScale(d['Life expectancy']))
+        .attr("cx", (d: any) => x(+d['Immunization Coverage']))
+        .attr("cy", (d: any) => y(+d['Adult Mortality']))
+        .attr("r", (d: any) => bubbleScale(+d['Life expectancy']))
         .style("fill", "#69b3a2")
         .style("opacity", "0.7")
         .attr("stroke", "black")
@@ -96,7 +96,7 @@ export class SecondChartComponent implements OnInit {
           tooltip.transition()
             .duration(200)
             .style("opacity", .9);
-          tooltip.html(d['Country'] + "<br/> Life expectancy: " + d['Life expectancy'])
+          tooltip.html(`Country: ${d['Country']} <br/> Life Expectancy: ${d['Life expectancy']} <br/> Immunization Coverage: ${d['Immunization Coverage']}% <br> Adult Mortality: ${d['Adult Mortality']}`)
             .style("left", (event.pageX - 240) + "px")
             .style("top", (event.pageY - 120) + "px");
         })
