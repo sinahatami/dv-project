@@ -18,14 +18,12 @@ through interactive visualizations.
 ### Installation
 
 1. Clone the repository.
-Install dependencies:
+2. Install dependencies:
 Bash
 npm install
-2.
-Run the development server:
+3. Run the development server:
 Bash
 ng serve
-3.
 4. Navigate to [http://localhost:4200/](http://localhost:4200/) to view the home page.
 
 ## 📈 Visualizations Overview
