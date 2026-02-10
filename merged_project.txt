@@ -1,0 +1,1101 @@
+// --- FILE: ./src/main.server.ts ---
+import { bootstrapApplication } from '@angular/platform-browser';
+import { AppComponent } from './app/app.component';
+import { config } from './app/app.config.server';
+
+const bootstrap = () => bootstrapApplication(AppComponent, config);
+
+export default bootstrap;
+
+
+// --- FILE: ./src/main.ts ---
+import { bootstrapApplication } from '@angular/platform-browser';
+import { appConfig } from './app/app.config';
+import { AppComponent } from './app/app.component';
+
+bootstrapApplication(AppComponent, appConfig)
+  .catch((err) => console.error(err));
+
+
+// --- FILE: ./src/app/home/home.component.ts ---
+import { Component } from '@angular/core';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'app-home',
+  standalone: true,
+  imports: [MatToolbarModule, MatCardModule, MatButtonModule],
+  templateUrl: './home.component.html',
+  styleUrl: './home.component.scss'
+})
+export class HomeComponent {
+  constructor(private router: Router) { }
+  getStarted() {
+    this.router.navigate(['first-chart'])
+  }
+}
+
+
+// --- FILE: ./src/app/home/home.component.spec.ts ---
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { HomeComponent } from './home.component';
+
+describe('HomeComponent', () => {
+  let component: HomeComponent;
+  let fixture: ComponentFixture<HomeComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [HomeComponent]
+    })
+    .compileComponents();
+    
+    fixture = TestBed.createComponent(HomeComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+
+
+// --- FILE: ./src/app/app.component.ts ---
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { HomeComponent } from './home/home.component';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [RouterOutlet, HomeComponent],
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss'
+})
+export class AppComponent {
+  title = 'dv-project';
+}
+
+
+// --- FILE: ./src/app/first-chart/first-chart.component.ts ---
+declare var d3: any;
+
+import { Component, OnInit } from '@angular/core';
+// import * as d3 from 'd3'
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { RouterModule } from '@angular/router';
+
+@Component({
+  selector: 'app-first-chart',
+  standalone: true,
+  imports: [MatToolbarModule, MatCardModule, MatIconModule, RouterModule],
+  templateUrl: './first-chart.component.html',
+  styleUrl: './first-chart.component.scss'
+})
+export class FirstChartComponent implements OnInit {
+
+  public chart = {
+    main_title: 'First Chart',
+    title: 'Top 50 Countries by Average Life Expectancy and Yearly Change',
+    type: 'Dual-Axis Composite Chart',
+    description: 'This visualization presents a comparative analysis of the top 50 countries with the highest average life expectancy. It illustrates not only where these countries stand in terms of life expectancy but also how this metric is changing over time, providing a year-over-year change rate. The use of dual axes allows for an intuitive comparison between the static average life expectancy figures and the dynamic annual changes.'
+  }
+
+  firstChart() {
+    // Set the dimensions and margins of the graph
+    const margin = { top: 20, right: 80, bottom: 200, left: 50 },
+      width = 1000 - margin.left - margin.right,
+      height = 600 - margin.top - margin.bottom;
+
+    // Append the svg object to the body of the page
+    const svg = d3.select("#dual-axis-chart")
+      .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`);
+    d3.csv("assets/export_file_1.csv").then((data: any) => {
+      // X axis: scale and draw
+      const x = d3.scaleBand()
+        .range([0, width])
+        .domain(data.map((d: any) => d.Country))
+        .padding(0.2);
+      svg.append("g")
+        .attr("transform", `translate(0, ${height})`)
+        .call(d3.axisBottom(x))
+        .selectAll("text")
+        .attr("transform", "translate(-10,0)rotate(-45)")
+        .style("text-anchor", "end");
+
+      // Add Y0 axis for Average Life Expectancy
+      const y0 = d3.scaleLinear()
+        .domain([73, (d3.max(data, (d: any) => +d['Life expectancy'])) as number])
+        .range([height, 0]);
+      svg.append("g")
+        .call(d3.axisLeft(y0));
+
+      // Add Y1 axis for YoY Change
+      const y1 = d3.scaleLinear()
+        .domain([d3.min(data, (d: any) => +d.YoY_Change), d3.max(data, (d: any) => +d.YoY_Change)])
+        .range([height, 0]);
+      svg.append("g")
+        .attr("transform", `translate(${Number(width)}, 0)`)
+        .call(d3.axisRight(y1));
+
+
+
+      const yAxisRight = svg.append("g")
+        .attr("transform", `translate(${width}, 0)`)
+        .call(d3.axisRight(y1));
+
+      // Append a label to the right y-axis
+      yAxisRight.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -margin.right + 120)
+        .attr("dy", "10px")
+        .attr("dx", "-80")
+        .attr("text-anchor", "end")
+        .attr("fill", "#000") // You can change the fill color
+        .text("Average Year-Over-Year (Life Expectancy Changes)");
+
+      const yAxisLeft = svg.append("g")
+        .call(d3.axisLeft(y0));
+
+      // Y0 axis title
+      yAxisLeft.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", margin.right)
+        .attr("dy", "-120")
+        .attr("dx", "-120")
+        .style("text-anchor", "end")
+        .attr("fill", "#000") // You can change the fill color
+        .text("Life Expectancy Range");
+
+      // Y1 axis title
+      yAxisLeft.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", width + 40)
+        .attr("dy", "-5.1em")
+        .style("text-anchor", "end")
+        .text("Average Year-Over-Year Change");
+
+      svg.append("text")
+        .attr("transform", `translate(${width / 2}, ${height + margin.bottom - 10})`) // Adjust position as needed
+        .style("text-anchor", "middle")
+        .text("Country");
+
+      // Adding bars for Average Life Expectancy
+      svg.selectAll(".bar")
+        .data(data)
+        .join("rect")
+        .attr("class", "bar")
+        .attr("x", (d: any) => x(d.Country) as number)
+        .attr("y", (d: any) => y0(+d['Life expectancy']))
+        .attr("width", x.bandwidth())
+        .attr("height", (d: any) => height - y0(+d['Life expectancy']))
+        .attr("fill", "#69b3a2")
+        .on("mouseover", showTooltip)
+        .on("mouseout", hideTooltip);
+
+      // Adding a line for YoY Change
+      const line = d3.line()
+        .x((d: any) => (x(d.Country)) as number + x.bandwidth() / 2)
+        .y((d: any) => y1(+d.YoY_Change));
+      svg.append("path")
+        .datum(data)
+        .attr("class", "line")
+        .attr("stroke", "red")
+        .attr("stroke-width", 1.5)
+        .attr("d", line);
+
+
+      // Define the tooltip for the chart
+      const tooltip = d3.select("#tooltip");
+
+      // Function to show the tooltip on hover
+      function showTooltip(d: any, data: any) {
+        tooltip.transition()
+          .duration(200)
+          .style("opacity", .9);
+        tooltip.html("Country: " + data.Country + "<br/>Life Expectancy Range: " + `<b>${+data['Life expectancy']}</b>`
+          + "<br/>YoY Change: " + `<b>${data.YoY_Change}</b>`)
+          .style("left", (d.pageX - 300) + "px")
+          .style("top", (d.pageY - 200) + "px");
+      }
+
+      // Function to hide the tooltip
+      function hideTooltip() {
+        tooltip.transition()
+          .duration(500)
+          .style("opacity", 0);
+      }
+
+      // ... (rest of your code to set up scales, axes, and parse data)
+
+      // Add bars with tooltip events
+      svg.selectAll(".bar")
+        .data(data)
+        .join("rect")
+        .attr("class", "bar")
+        // ... (other attributes for bars)
+        .on("mouseover", showTooltip)
+        .on("mouseout", hideTooltip);
+
+      // Add points to the line for tooltip interaction
+      svg.selectAll(".dot")
+        .data(data)
+        .enter().append("circle")
+        .attr("class", "dot")
+        .attr("cx", function (d: any) { return (x(d.Country)) as any + x.bandwidth() / 2; })
+        .attr("cy", function (d: any) { return y1(+d.YoY_Change); })
+        .attr("r", 5)
+        .attr("fill", "orange")
+        .on("mouseover", showTooltip)
+        .on("mouseout", hideTooltip);
+    })
+  }
+
+  ngOnInit() {
+    this.firstChart()
+  }
+
+}
+
+
+// --- FILE: ./src/app/first-chart/first-chart.component.spec.ts ---
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { FirstChartComponent } from './first-chart.component';
+
+describe('FirstChartComponent', () => {
+  let component: FirstChartComponent;
+  let fixture: ComponentFixture<FirstChartComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [FirstChartComponent]
+    })
+    .compileComponents();
+    
+    fixture = TestBed.createComponent(FirstChartComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+
+
+// --- FILE: ./src/app/second-chart/second-chart.component.spec.ts ---
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { SecondChartComponent } from './second-chart.component';
+
+describe('SecondChartComponent', () => {
+  let component: SecondChartComponent;
+  let fixture: ComponentFixture<SecondChartComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [SecondChartComponent]
+    })
+    .compileComponents();
+    
+    fixture = TestBed.createComponent(SecondChartComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+
+
+// --- FILE: ./src/app/second-chart/second-chart.component.ts ---
+declare var d3: any;
+
+import { Component, OnInit } from '@angular/core';
+// import * as d3 from 'd3'
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { RouterModule } from '@angular/router';
+
+@Component({
+  selector: 'app-second-chart',
+  standalone: true,
+  imports: [MatToolbarModule, MatCardModule, MatIconModule, RouterModule],
+  templateUrl: './second-chart.component.html',
+  styleUrl: './second-chart.component.scss'
+})
+export class SecondChartComponent implements OnInit {
+  public chart = {
+    main_title: 'Second Chart',
+    title: 'Correlation Between Immunization Coverage and Adult Mortality Countries',
+    type: 'Bubble Chart',
+    description: 'This visualization examines the relationship between immunization coverage and adult mortality among all countries ranked by life expectancy. Immunization coverage is mean of "Polio", "Diphtheria" and "Hepatitis B". It aims to explore whether higher immunization rates are associated with lower adult mortality, which is a key indicator of public health.'
+  }
+
+  secondChart() {
+    // Set the dimensions and margins of the graph
+    const margin = { top: 40, right: 40, bottom: 60, left: 60 },
+      width = 960 - margin.left - margin.right,
+      height = 500 - margin.top - margin.bottom;
+
+    // Append the svg object to the body of the page
+    const svg = d3.select("#scatterplot")
+      .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    // Read the data
+    d3.csv("assets/export_file_2.csv").then((data: any) => {
+
+      // Convert strings to numbers
+      data.forEach((d: any) => {
+        d['Immunization Coverage'] = +d['Immunization Coverage'];
+        d['Adult Mortality'] = +d['Adult Mortality'];
+        d['Life expectancy'] = +d['Life expectancy'];
+      });
+
+      // Add X axis
+      const x = d3.scaleLinear()
+        .domain([90, d3.max(data, (d: any) => d['Immunization Coverage'])])
+        .range([0, width]);
+      svg.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x))
+        .append("text")
+        .attr("x", width)
+        .attr("y", -6)
+        .style("text-anchor", "end")
+        .text("Immunization Coverage (%)");
+
+      // Add Y axis
+      const y = d3.scaleLinear()
+        .domain([0, 300])
+        .range([height, 0]);
+      svg.append("g")
+        .call(d3.axisLeft(y))
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .text("Adult Mortality");
+
+      // Bubble size scale
+      let bubbleScale = d3.scaleSqrt()
+        .domain([0, 110])
+        .range([-80, 35]);
+
+      // Add bubbles with tooltips
+      const tooltip = d3.select("#scatterplot").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+
+      svg.append("g")
+        .selectAll("dot")
+        .data(data)
+        .join("circle")
+        .attr("cx", (d: any) => x(+d['Immunization Coverage']))
+        .attr("cy", (d: any) => y(+d['Adult Mortality']))
+        .attr("r", (d: any) => bubbleScale(+d['Life expectancy']))
+        .style("fill", "#69b3a2")
+        .style("opacity", "0.7")
+        .attr("stroke", "black")
+        .on("mouseover", (event: any, d: any) => {
+          tooltip.transition()
+            .duration(200)
+            .style("opacity", .9);
+          tooltip.html(`Country: ${d['Country']} <br/> Life Expectancy: ${d['Life expectancy']} <br/> Immunization Coverage: ${d['Immunization Coverage']}% <br> Adult Mortality: ${d['Adult Mortality']}`)
+            .style("left", (event.pageX - 240) + "px")
+            .style("top", (event.pageY - 120) + "px");
+        })
+        .on("mouseout", (d: any) => {
+          tooltip.transition()
+            .duration(500)
+            .style("opacity", 0);
+        });
+
+      // Add axes labels
+      svg.append("text")
+        .attr("class", "x label")
+        .attr("text-anchor", "end")
+        .attr("x", width / 2 + 100)
+        .attr("y", height + 40)
+        .text("Immunization Coverage (%)");
+
+      svg.append("text")
+        .attr("class", "y label")
+        .attr("text-anchor", "end")
+        .attr("y", -50)
+        .attr("dy", ".75em")
+        .attr("dx", "-130")
+        .attr("transform", "rotate(-90)")
+        .text("Adult Mortality");
+    });
+
+  }
+
+  ngOnInit() {
+    this.secondChart()
+  }
+}
+
+
+// --- FILE: ./src/app/third-chart/third-chart.component.spec.ts ---
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { ThirdChartComponent } from './third-chart.component';
+
+describe('ThirdChartComponent', () => {
+  let component: ThirdChartComponent;
+  let fixture: ComponentFixture<ThirdChartComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [ThirdChartComponent]
+    })
+    .compileComponents();
+    
+    fixture = TestBed.createComponent(ThirdChartComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+
+
+// --- FILE: ./src/app/third-chart/third-chart.component.ts ---
+declare var d3: any;
+
+import { Component, OnInit } from '@angular/core';
+// import * as d3 from 'd3'
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { RouterModule } from '@angular/router';
+
+@Component({
+  selector: 'app-third-chart',
+  standalone: true,
+  imports: [MatToolbarModule, MatCardModule, MatIconModule, RouterModule],
+  templateUrl: './third-chart.component.html',
+  styleUrl: './third-chart.component.scss'
+})
+export class ThirdChartComponent implements OnInit {
+  public chart = {
+    main_title: 'Third Chart',
+    title: 'Standardized Health and Socio-Economic Indicators for the Top 15 Countries',
+    type: 'Heatmap Chart',
+    description: `The heatmap provides a comparative view of the top 15 countrie's based on their mean health and socio-economic indicators. Each row represents a country, and each column corresponds to an indicator such as "Life expectancy", "Adult Mortality", "Hepatitis B", "Measles", "BMI", "Polio", "Diphtheria", "HIV/AIDS", "GDP", and "Schooling". The color intensity in each cell reflects the countrys standardized score for that indicator, with the color scale provided at the bottom.`
+  }
+
+  addLegend(svg: any, colorScale: any) {
+    const legendWidth = 300;
+    const legendHeight = 30;
+    const margin = { top: 450, right: 60, bottom: 30, left: 60 };
+
+    // Define the gradient
+    const defs = svg.append("defs");
+    const linearGradient = defs.append("linearGradient")
+      .attr("id", "linear-gradient");
+
+    linearGradient.selectAll("stop")
+      .data(colorScale.ticks().map((t: any, i: any, n: any) => ({ offset: `${100 * i / n.length}%`, color: colorScale(t) })))
+      .enter().append("stop")
+      .attr("offset", (d: any) => d.offset)
+      .attr("stop-color", (d: any) => d.color);
+
+    // Define the legend group
+    const legend = svg.append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    // Append the title
+    legend.append("text")
+      .attr("class", "legend-title")
+      .attr("x", legendWidth / 2) // Position the text in the middle of the legend
+      .attr("y", 0)
+      .attr("text-anchor", "middle")
+      .style("font-size", "14px")
+      .style("font-weight", "bold")
+      .text("Indicator Value Scale"); // The title text
+
+    // Draw the rectangle and fill with gradient
+    legend.append("rect")
+      .attr("width", legendWidth)
+      .attr("height", legendHeight)
+      .style("fill", "url(#linear-gradient)")
+      .attr("transform", "translate(0, 20)");
+
+    // Create a scale and axis for the legend
+    const legendScale = d3.scaleLinear()
+      .domain(colorScale.domain())
+      .range([0, legendWidth]);
+
+    const legendAxis = d3.axisBottom(legendScale)
+      .ticks(5);
+
+    legend.append("g")
+      .attr("transform", `translate(0, ${legendHeight + 20})`)
+      .call(legendAxis);
+  }
+
+  thirdChart() {
+    // Dimensions and margins of the chart
+    const margin = { top: 30, right: 30, bottom: 200, left: 100 },
+      width = 800 - margin.left - margin.right,
+      height = 600 - margin.top - margin.bottom;
+
+    // Append the svg object to the body of the page
+    const svg = d3.select("#heatmap")
+      .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    // Read the data
+    d3.csv("assets/export_file_3.csv").then((data: any) => {
+      // Labels of row and columns
+      const countries = data.map((d: any) => d.Country);
+      const indicators = Object.keys(data[0]).slice(1); // exclude the first column which is Country
+
+      // Build X scales and axis
+      const x = d3.scaleBand()
+        .range([0, width])
+        .domain(indicators)
+        .padding(0.05);
+      svg.append("g")
+        .attr("transform", `translate(0, ${height})`)
+        .call(d3.axisBottom(x).tickSize(0))
+        .selectAll("text")
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-65)");
+
+      // Build Y scales and axis
+      const y = d3.scaleBand()
+        .range([height, 0])
+        .domain(countries)
+        .padding(0.05);
+      svg.append("g")
+        .call(d3.axisLeft(y));
+
+      const myColor = d3.scaleSequential()
+        .interpolator(d3.interpolateInferno)
+        .domain([d3.min(data, (d: any) => d3.min(indicators, (indicator: any) => +d[indicator])),
+        d3.max(data, (d: any) => d3.max(indicators, (indicator: any) => +d[indicator]))]);
+
+
+      const tooltip = d3.select("#tooltip");
+      function mouseover(event: any, d: any) {
+        tooltip.style("opacity", 1)
+        tooltip.transition()
+          .duration(200)
+          .style("opacity", .9)
+      }
+
+      function mousemove(event: any, d: any) {
+        let indicatorValue: string = d[event.currentTarget.attributes.valuee.textContent]
+        let indicator: string = event.currentTarget.attributes.valuee.textContent
+        tooltip.html(`
+        Country: ${d['Country']} <br>
+        ${indicator}: <b>${indicatorValue}</b>
+        `)
+          .style("left", (event.pageX) - 230 + "px")
+          .style("top", (event.pageY - 100) + "px");
+      };
+
+      function mouseleave(event: any, d: any) {
+        tooltip.transition()
+          .duration(500)
+          .style("opacity", 0);
+      };
+
+      // add the squares
+      data.forEach((row: any) => {
+        indicators.forEach(function (indicator) {
+          svg.append("rect")
+            .data([row])
+            .attr("x", x(indicator))
+            .attr("y", y(row.Country))
+            .attr("width", x.bandwidth())
+            .attr("height", y.bandwidth())
+            .attr("valuee", indicator)
+            .style("fill", myColor(row[indicator]))
+            .on("mouseover", mouseover)
+            .on("mousemove", mousemove)
+            .on("mouseleave", mouseleave)
+        });
+      });
+
+      // Call this function after your heatmap is created and pass the color scale used for the heatmap
+      this.addLegend(svg, myColor);
+    });
+  }
+
+  ngOnInit() {
+    this.thirdChart()
+  }
+}
+
+
+// --- FILE: ./src/app/app.config.server.ts ---
+import { mergeApplicationConfig, ApplicationConfig } from '@angular/core';
+import { provideServerRendering } from '@angular/platform-server';
+import { appConfig } from './app.config';
+
+const serverConfig: ApplicationConfig = {
+  providers: [
+    provideServerRendering()
+  ]
+};
+
+export const config = mergeApplicationConfig(appConfig, serverConfig);
+
+
+// --- FILE: ./src/app/fifth-chart/fifth-chart.component.ts ---
+declare var d3: any;
+
+import { Component, OnInit } from '@angular/core';
+// import * as d3 from 'd3'
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { RouterModule } from '@angular/router';
+
+@Component({
+  selector: 'app-fifth-chart',
+  standalone: true,
+  imports: [MatToolbarModule, MatCardModule, MatIconModule, RouterModule],
+  templateUrl: './fifth-chart.component.html',
+  styleUrl: './fifth-chart.component.scss'
+})
+export class FifthChartComponent implements OnInit {
+  public chart = {
+    main_title: 'Fifth Chart',
+    title: 'Trends in Total Health Expenditure Across Top 5 Countries On Total Expenditure (2000-2014)',
+    type: 'Area Chart Trend Line',
+    description: 'This visualization presents the total health expenditure trends from the year 2000 to 2014 for top 5 countries on total Expenditure, including the United States of America, Micronesia, Sierra Leone, Sweden, and Norway. Each colored area represents the expenditure of one country, and the layers are stacked on top of each other to show the cumulative expenditure over the years.'
+  }
+
+  fifthChart() {
+    // Define the dimensions and margins of the graph
+    const margin = { top: 10, right: 30, bottom: 50, left: 60 }, // Adjusted bottom margin for X-axis label
+      width = 1000 - margin.left - margin.right,
+      height = 400 - margin.top - margin.bottom;
+
+    // Append the SVG object to the body of the page
+    const svg = d3.select("#chart5")
+      .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // Parse the Date / Time
+    const parseTime = d3.timeParse("%Y");
+
+    // Set the ranges
+    const x = d3.scaleTime().range([0, width]);
+    const y = d3.scaleLinear().range([height, 0]);
+
+    // Define the area
+    const area = d3.area()
+      .x(function (d: any) { return x(d.Year); })
+      .y0(height)
+      .y1(function (d: any) { return y(d.Total_expenditure); });
+
+    // Read the CSV file
+    d3.csv("assets/export_file_5.csv").then((data: any) => {
+      // Format the data
+      data.forEach((d: any) => {
+        d.Year = parseTime(d.Year);
+        d.Total_expenditure = +d.Total_expenditure;
+      });
+
+      // Get a list of unique countries
+      const countries = [...new Set(data.map((d: any) => d.Country))];
+
+      // Sort countries by maximum total expenditure
+      countries.sort((a, b) => {
+        const maxExpenditureA = d3.max(data.filter((d: any) => d.Country === a), (d: any) => d.Total_expenditure);
+        const maxExpenditureB = d3.max(data.filter((d: any) => d.Country === b), (d: any) => d.Total_expenditure);
+        return maxExpenditureB - maxExpenditureA; // Note: sorting in descending order
+      });
+
+      // Define color scale for countries
+      const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+      const colorScale2 = ['rgba(31, 119, 180, 1)', 'rgba(255, 127, 14, 0.9)', 'rgba(44, 160, 44, 0.8)', 'rgba(214, 39, 40, 0.7)', 'rgba(166, 0, 159, 0.6)']
+      // Set the domains for X and Y scales
+      x.domain(d3.extent(data, function (d: any) { return d.Year; }));
+      y.domain([0, d3.max(data, function (d: any) { return d.Total_expenditure; }) + 10]);
+
+      // Add the X-axis
+      svg.append("g")
+        .attr("class", "x-axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x));
+
+      // Add the Y-axis
+      svg.append("g")
+        .attr("class", "y-axis")
+        .call(d3.axisLeft(y));
+
+      // Add X-axis label
+      svg.append("text")
+        .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.top + 20) + ")") // Adjusted Y position
+        .style("text-anchor", "middle")
+        .text("Year");
+
+      // Add Y-axis label
+      svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left)
+        .attr("x", 0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Total Expenditure");
+
+      // Add tooltips
+      const tooltip = d3.select("#chart5")
+        .append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+
+      // Add a legend for countries
+      const legend = svg.selectAll(".legend")
+        .data(countries)
+        .enter().append("g")
+        .attr("class", "legend")
+        .attr("transform", function (d: any, i: any) { return "translate(0," + i * 20 + ")"; });
+
+      legend.append("rect")
+        .attr("x", width - 18)
+        .attr("width", 18)
+        .attr("height", 18)
+        .style("fill", function (d: any) { return colorScale(d) });
+
+      legend.append("text")
+        .attr("x", width - 24)
+        .attr("y", 9)
+        .attr("dy", ".35em")
+        .style("text-anchor", "end")
+        .text(function (d: any) { return d; });
+
+      const mouseover = function (event: any, d: any) {
+        let ave_Total_expenditure = 0
+        d.forEach((a: any) => {
+          ave_Total_expenditure += a.Total_expenditure
+        })
+        ave_Total_expenditure = ave_Total_expenditure / 15
+        tooltip.transition()
+          .duration(200)
+          .style("opacity", 0.9);
+        tooltip.html(`Country: ${d[0].Country}<br>Mean Total Expenditure: <b>${ave_Total_expenditure}</b>`)
+          .style("left", (event.pageX - 240) + "px")
+          .style("top", (event.pageY - 110) + "px");
+      }
+
+      const mouseout = function (event: any, d: any) {
+        tooltip.transition()
+          .duration(500)
+          .style("opacity", 0);
+      }
+
+      // Add the area for each country with tooltips
+      countries.forEach((country, index) => {
+        let countryData = data.filter(function (row: any) { return row.Country === country; });
+
+        // Add the area for this country
+        svg.append("path")
+          .data([countryData])
+          .attr("class", "area")
+          .attr("d", area)
+          .style("fill", colorScale2[index])
+          .on("mouseover", mouseover)
+          .on("mouseout", mouseout);
+      });
+    });
+  }
+
+  ngOnInit() {
+    this.fifthChart()
+  }
+}
+
+
+// --- FILE: ./src/app/fifth-chart/fifth-chart.component.spec.ts ---
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { FifthChartComponent } from './fifth-chart.component';
+
+describe('FifthChartComponent', () => {
+  let component: FifthChartComponent;
+  let fixture: ComponentFixture<FifthChartComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [FifthChartComponent]
+    })
+    .compileComponents();
+    
+    fixture = TestBed.createComponent(FifthChartComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+
+
+// --- FILE: ./src/app/fourth-chart/fourth-chart.component.ts ---
+declare var d3: any;
+
+import { Component, OnInit } from '@angular/core';
+// import * as d3 from 'd3'
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { RouterModule } from '@angular/router';
+
+@Component({
+  selector: 'app-forth-chart',
+  standalone: true,
+  imports: [MatToolbarModule, MatCardModule, MatIconModule, RouterModule],
+  templateUrl: './fourth-chart.component.html',
+  styleUrl: './fourth-chart.component.scss'
+})
+export class FourthChartComponent implements OnInit {
+
+  public chart = {
+    main_title: 'Fourth Chart',
+    title: 'GDP and Life Expectancy Correlation with Linear Regression Analysis',
+    type: 'Scatter Linear Chart',
+    description: `This visualization aims to explore the correlation between a country's wealth, represented by GDP, and the average life expectancy of its inhabitants. Each dot represents a country, with the horizontal position reflecting its GDP and the vertical position indicating its average life expectancy. The red line represents a linear regression model fitted to the data, suggesting the expected life expectancy given a country's GDP.`
+  }
+
+  fourthChart() {
+    const margin = { top: 10, right: 30, bottom: 50, left: 60 },
+      width = 1200 - margin.left - margin.right,
+      height = 400 - margin.top - margin.bottom;
+
+    const svg = d3.select("#scatterplot")
+      .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    // Read the data
+    d3.csv("assets/export_file_4.csv").then((data: any) => {
+      // Assuming 'Intercept' and 'Coefficient' are columns in your CSV
+      const intercept = parseFloat(data[0].Intercept);
+      const coefficient = parseFloat(data[0].Coefficient);
+      // Add X axis
+      const x = d3.scaleLinear()
+        .domain([0, d3.max(data, (d: any) => +d.GDP)])
+        .range([0, width]);
+      svg.append("g")
+        .attr("transform", `translate(0, ${height})`)
+        .call(d3.axisBottom(x));
+
+      // Add Y axis
+      const y = d3.scaleLinear()
+        .domain([0, d3.max(data, (d: any) => +d['Life expectancy'])])
+        .range([height, 0]);
+      svg.append("g")
+        .call(d3.axisLeft(y));
+
+      // Add X axis label
+      svg.append("text")
+        .attr("text-anchor", "end")
+        .attr("x", (width / 2) + 10)
+        .attr("y", height + margin.top + 30)
+        .text("GDP");
+
+      // Add Y axis label
+      svg.append("text")
+        .attr("text-anchor", "end")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -margin.left + 20)
+        .attr("x", -margin.top - 100)
+        .text("Life Expectancy");
+
+      // Create a tooltip
+      const tooltip = d3.select("#tooltip");
+
+      // Function to show the tooltip on mouseover
+      const mouseover = (event: any, d: any) => {
+        tooltip.transition()
+          .duration(200)
+          .style("opacity", .9);
+        tooltip.html("Country: " + `${d.Country}` + "<br>GDP: " + `<b>${d.GDP}</b>` + "<br>Life Expectancy: " + `<b>${d['Life expectancy']}</b>`)
+          .style("left", (event.pageX - 240) + "px")
+          .style("top", (event.pageY - 110) + "px");
+      };
+
+      // Function to hide the tooltip on mouseout
+      const mouseout = (event: any, d: any) => {
+        tooltip.transition()
+          .duration(500)
+          .style("opacity", 0);
+      };
+      // Add dots
+      svg.selectAll("dot")
+        .data(data)
+        .enter()
+        .append("circle")
+        .attr("cx", (d: any) => x(d.GDP))
+        .attr("cy", (d: any) => y(d['Life expectancy']))
+        .attr("r", 5)
+        .style("fill", "#69b3a2")
+        .on("mouseover", mouseover)
+        .on("mouseout", mouseout);
+
+      // Now add the regression line using the intercept and coefficient
+      const linePoints = x.domain().map((xValue: any) => {
+        return { x: xValue, y: intercept + coefficient * xValue };
+      });
+
+      // Add the regression line to the plot
+      svg.selectAll(".regression-line")
+        .data([linePoints])
+        .enter()
+        .append("path")
+        .attr("class", "regression-line")
+        .attr("d", d3.line()
+          .x((d: any) => x(d.x))
+          .y((d: any) => y(d.y))
+        )
+        .attr("stroke", "red")
+        .attr("stroke-width", 2)
+        .style("fill", "none");
+
+      // Add the regression line
+      svg.append("line")
+        .attr("x1", x(0))
+        .attr("y1", y(intercept))
+        .attr("x2", x(d3.max(data, (d: any) => +d.GDP)))
+        .attr("y2", y(intercept + coefficient * d3.max(data, (d: any) => +d.GDP)))
+        .attr("stroke", "red")
+        .attr("stroke-width", 2);
+    });
+  }
+
+  ngOnInit() {
+    this.fourthChart()
+  }
+}
+
+
+// --- FILE: ./src/app/fourth-chart/fourth-chart.component.spec.ts ---
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { FourthChartComponent } from './fourth-chart.component';
+
+describe('FourthChartComponent', () => {
+  let component: FourthChartComponent;
+  let fixture: ComponentFixture<FourthChartComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [FourthChartComponent]
+    })
+      .compileComponents();
+
+    fixture = TestBed.createComponent(FourthChartComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+
+
+// --- FILE: ./src/app/app.component.spec.ts ---
+import { TestBed } from '@angular/core/testing';
+import { AppComponent } from './app.component';
+
+describe('AppComponent', () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [AppComponent],
+    }).compileComponents();
+  });
+
+  it('should create the app', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    expect(app).toBeTruthy();
+  });
+
+  it(`should have the 'dv-project' title`, () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    expect(app.title).toEqual('dv-project');
+  });
+
+  it('should render title', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, dv-project');
+  });
+});
+
+
+// --- FILE: ./src/app/app.routes.ts ---
+import { Routes } from '@angular/router';
+import { FirstChartComponent } from './first-chart/first-chart.component';
+import { SecondChartComponent } from './second-chart/second-chart.component';
+import { ThirdChartComponent } from './third-chart/third-chart.component';
+import { FourthChartComponent } from './fourth-chart/fourth-chart.component';
+import { FifthChartComponent } from './fifth-chart/fifth-chart.component';
+import { HomeComponent } from './home/home.component';
+
+export const routes: Routes = [
+    { path: '', component: HomeComponent, title: 'Life Expectancy Final DV Project' },
+    { path: 'first-chart', component: FirstChartComponent, title: 'Dual-Axis Composite Chart' },
+    { path: 'second-chart', component: SecondChartComponent, title: 'Bubble Chart' },
+    { path: 'third-chart', component: ThirdChartComponent, title: 'Heatmap Chart' },
+    { path: 'fourth-chart', component: FourthChartComponent, title: 'Scatter Linear Chart' },
+    { path: 'fifth-chart', component: FifthChartComponent, title: 'Area Chart' },
+];
+
+
+// --- FILE: ./src/app/app.config.ts ---
+import { ApplicationConfig } from '@angular/core';
+import { provideRouter } from '@angular/router';
+
+import { routes } from './app.routes';
+import { provideClientHydration } from '@angular/platform-browser';
+import { provideAnimations } from '@angular/platform-browser/animations';
+
+export const appConfig: ApplicationConfig = {
+  providers: [provideRouter(routes), provideClientHydration(), provideAnimations()]
+};
+
+
