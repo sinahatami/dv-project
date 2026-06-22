@@ -88,4 +88,4 @@ This project features five distinct interactive charts, each focusing on a diffe
 - **Rendering:** Supports Client-Side Hydration and Animations for a smooth UI.
 - **Data Sources:** All charts are populated via CSV files located in the `src/assets/` directory.
 
-> **Note:** This project was developed as a Final Data Visualization (DV) Project focusing on Life Expectancy metrics.
+> **Note:** This project was developed as the final project for the **Data Visualization** course at the **University of Genova**, focusing on Life Expectancy metrics.
