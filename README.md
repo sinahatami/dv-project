@@ -5,7 +5,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)
 
-**Live Demo:** [https://sinahatami.github.io/dv-project/](https://sinahatami.github.io/dv-project/)
+**Live Demo:** [https://sinahatami.github.io/dv/](https://sinahatami.github.io/dv/)
 
 Welcome to the **dv-project**. This is a specialized web application built with **Angular** and **D3.js** designed to explore global health trends, socio-economic indicators, and life expectancy through interactive visualizations.
 
